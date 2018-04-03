@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>eval()</title>
+</head>
+<body>
+<script>
+    var geval = eval;
+    var x = "Global X", y = "Global Y";
+    function f() {
+        var x = "f() local";
+        eval("x += 'changed';");
+        return x;
+    }
+    function g() {
+        var y = "local";
+        geval("y += 'changed';");
+        return y;
+    }
+
+    console.log(f(), x);
+    console.log(g(), y);
+
+</script>
+</body>
+</html>

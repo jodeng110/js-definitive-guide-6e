@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ex 6-1 : 특정 프로토타입을 상속받는 객체 생성하기</title>
+</head>
+<body>
+<script>
+    /*
+    * inherit()은 프로토타입 p의 속성을 상속받아 새롭게 생성된 객체를 반환.
+    * 만일 ES5 함수인 Object.create()가 정의되ㅓ 있다면 해당 함수를 사용할 수 있다.
+    * but, 사용할 수 없는 경우 예전 방법(ES3에서 사용했던..방법) 사용!
+    * */
+    function inherit (p) {
+        if (p == null) throw TypeError();
+        if (Object.create) return Object.create(p);
+        var t = typeof p;
+
+        if (t !== 'object' && t != 'function') throw TypeError();
+        function f () {};
+        f.prototype = p;
+        return new f();
+    }
+
+    var o = {x: '난 변하지 않아!'};
+
+    // 임의의 라이브러리 함수에 의해 뜻하지 않게 수정되는것을 막기위해
+    //library_function(inherit(o)); //객체 o가 임의로 수정되는것을 막는다.
+
+     var o = {};                // o는 Object.prototype을 상속받은 객체이고
+     o.x = 1;                   // 고유 프로퍼티 x를 갖는다.
+     var p = inherit(o);        // p는 객체 o와 Object.prototype을 상속받은 객체이고,
+     p.y = 2;                   // 고유 프로퍼티 y를 갖는다.
+     var q = inherit(p);        // q는 객체 p와 o, Object.prototype을 상속받는 객체이고,
+     q.z = 3;                   // 고유 프로퍼티 z를 갖는다.
+     var s = q.toString();      // q는 Object.prototype을 상속받았기 때문에 toString()사용 가능!
+
+     console.log(q.x + q.y)     // 3  => q의 프로퍼티 x, y는 각각 o, p에서 받음.
+</script>
+
+</body>
+</html>

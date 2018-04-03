@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>이미지 처리를 위한 웹 워커 만들기 (웹워커 예제1)</title>
+</head>
+<body>
+<img src="assets/images.jpg" onclick="smear(this)">
+<script>
+    // 비동기 방식으로 이미지를 얼룩을 묻힌 것으로 교체
+    function smear (img) {
+        // 이미지와 동일한 크기의 빈 캔버스<canvas> 생성
+        var canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // 캔버스에 이미지를 복하나 다음, 픽셀 정보 추출
+        var context = canvas.getContext('2d');
+        context.drawImage(img, 0, 0);
+        var pixels = context.getImageData(0,0,img.width, img.height);
+
+        // 추출된 픽셀 정보를 워커 스레드로 전송
+        var worker = new Worker('SmartWorker.js'); // 워커 생성
+        worker.postMessage(pixels); // 픽셀 정보의 복사본 전송
+        console.log(this); // Window
+        // 워커의 응답을 받기 위해 핸들러 등록
+        worker.onmessage = function (e) {
+            console.log(this); // Worker
+            if (typeof e.data === 'string') {
+                console.log('워커 : ', e.data);
+                return;
+            }
+            var smeared_pixels = e.data; // 워커로부터 얻는 픽셀정보
+            context.putImageData(smeared_pixels, 0, 0); // 캔버스에 픽셀을 복사
+            img.src = canvas.toDataURL(); // 그런다음 img에 설정
+            worker.terminate(); // 워커 스레드를 중지
+            canvas.width = canvas.height = 0; //남은 픽셀 정보를 폐기
+        };
+    }
+
+    /*
+    * - 웹 페이지는 싱글 스레드 모드
+    * - 만약, 값을 반환하기 까지 작업이 오래 걸리는 스크립트(함수)를 수행한다는 다른 UI작업을
+    * 해당 스크립트 작업이 종료될 때까지 대기해야해!
+    *
+    * - 이러한 스크립트 작업이 오래 걸린다고 해서 페이지를 멈추가 기다릴 필요가 X
+    * - 웹 워커는 JS 코드를 UI스레드와 별도인 백그라운드(WorkerGlobalScope)에서 실행
+    * - 웹 페이지를 가로막지 않곡 스크립트(함수)를 돌릴 수 있다!
+    *
+    * ** 어떨때 웹 워커 사용하면 좋을까?
+    * 1) 매우 복잡하고 시간이 오래걸리는 연산
+    * 2) 원격지에 있는 리소스에 대한 액세스 작업?
+    * 3) 백그라운드에서 조용하게 오랜시간 작업해야하는 경우
+    * 4) UI 스레드 방해없이 지속적으로 수행해야 하는 작업
+    * */
+</script>
+
+</body>
+</html>

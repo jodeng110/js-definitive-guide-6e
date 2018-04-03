@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+    var bytes = new Uint8Array(1024); //1KB
+    for (var i = 0; i < bytes.length ; i++) {
+        console.log(`${i} 번째 : ${(i & 0xFF).toString(2)}`);
+        bytes[i] = i & 0xFF; // 인덱스의 하위 8비트로 설정 (& 연산자 : 비트단위 논리곱)
+        /*
+        * 0xFF = 255 = 11111111
+        *
+        * */
+    }
+    var copy = new Uint8Array(bytes); // 배열 복사본 생성
+    var ints = new Int32Array([0,1,2,3]); // 4개의 정수를 지정하는 타입배열
+
+    console.log(0xFF);
+    console.log(bytes);
+    console.log(copy);
+    console.log(ints);
+
+    /*
+    * '에라토스테제스의 체'알고리즘 사용
+    * n보다 더 작은 수 중 가장 큰 소수 반환
+    * */
+    function sieve(n) {
+        if (n < 2) throw '입력값은 최소 2이상이어야한다.!!!(소수의 min값: 2)';
+        var a = new Int8Array(n+1); // x가 합성수이면 a[x]는 1이다. 일반배열로 했다면 2~3배 느려졌을 꺼야!
+        var max = Math.floor(Math.sqrt(n)); // 이 수보다 큰 수는 고려하지 않는다.
+        var p = 2; // 2는 가장 작은 첫번째 소수
+        while(p <= max) {
+            for (var i=2*p; i <= n; i+= p) {
+                a[i] = 1;
+                while(a[++p]){ /* empty */ } /*표시되지 않은 다음 인덱스는 소수다*/
+            }
+        }
+        while(a[n]) n--; // 배열을 거꾸로 탐색하여 마지막 소수를 찾는다.
+
+        return n;
+    }
+    var num = 7;
+
+    console.log(`정수 ${num}보다 작은 수중 가장 큰 소수는? ${sieve(num)}`);
+</script>
+</body>
+</html>

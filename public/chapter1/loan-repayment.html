@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chapter 1 - Loan Calculator</title>
+    <style>
+
+    </style>
+</head>
+<body>
+<table>
+    <tr>
+        <th>대출 데이터 입력 : </th>
+        <td></td>
+        <th>대출 잔액, Cumluative Equity(누적 자본), 이자 금액</th>
+    </tr>
+    <tr>
+        <td>대출금 (￦) : </td>
+        <td><input id="amount" onchange="calculate();"></td>
+        <td rowspan="8"><canvas id="graph" width="400" height="250"></canvas></td>
+    </tr>
+    <tr>
+        <td>연간 이자율 (%) : </td>
+        <td><input id="apr" onchange="calculate();"></td>
+    </tr>
+    <tr>
+        <td>상환 기간 (년) : </td>
+        <td><input id="years" onchange="calculate();"></td>
+    </tr>
+    <!--<tr>-->
+        <!--<td>Zipcode (to find lenders) : </td>-->
+        <!--<td><input id="zipcode" onchange="calculate();"></td>-->
+    <!--</tr>-->
+    <tr>
+        <th>대략적인 계산</th>
+        <td><button onclick="calculate();">계산하기</button></td>
+    </tr>
+    <tr>
+        <td>월별 상환금 : </td>
+        <td>￦<span class="output" id="payment"></span></td>
+    </tr>
+    <tr>
+        <td>총 지불 금액 : </td>
+        <td>￦<span class="output" id="total"></span></td>
+    </tr>
+    <tr>
+        <td>총 이자 금액 : </td>
+        <td>￦<span class="output" id="totalinterest"></span></td>
+    </tr>
+</table>
+
+<script src="js/app.js"></script>
+</body>
+</html>
