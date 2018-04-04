@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FileReader를 활용하여 텍스트 파일 읽기</title>
+</head>
+<body>
+<input type="file" onchange="readFile(this.files[0])">
+<pre id="output"></pre>
+
+<script>
+    const sel = (selector, el=document) => el.querySelector(selector);
+
+    function readFile (f) {
+        var reader = new FileReader();
+        reader.readAsText(f);
+        reader.onload = function () {
+            var text = reader.result;
+            var out = sel('#output');
+            out.innerHTML = ''; // <pre id=output> 요소의 내용을 비운다.
+            out.appendChild(document.createTextNode(text));
+        };
+        reader.onerror = function (e) {
+            throw e;
+        };
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Blob URL을 사용하여 드롭된 이미지 파일 보여주기</title>
+    <style>
+        #dropTarget {
+            width: 500px;
+            height: 200px;
+            box-sizing: border-box;
+            border: 2px solid #ffc0cb;
+        }
+
+        #dropTarget.active {
+            border: 2px dashed #66cdaa;
+            background-color: rgba(102, 205, 170, .2);
+        }
+    </style>
+</head>
+<body>
+<div id="dropTarget">여기에 이미지 파일을 드롭하세용.</div>
+
+<script>
+    const sel = (selector, el=document) => el.querySelector(selector);
+
+    const getBlobURL = (window.URL && URL.createObjectURL.bind(URL)) ||
+            (window.webkitURL && webkitURL.createObjectURL.bind(webkitURL)) ||
+            window.createObjectURL;
+
+    const revokeBlobURL = (window.URL && URL.revokeObjectURL(URL)) ||
+            (window.webkitURL && webkitURL.revokeObjectURL.bind(webkitURL)) ||
+            window.revokeObjectURL;
+
+    window.addEventListener('DOMContentLoaded', e => {
+       var dropTarget = sel('#dropTarget');
+
+       // 사용자가 dropTarget 위에서 파일을 드래그하기 시작하면 dropTarget을 돋보이게한다.
+       dropTarget.ondragenter = function (e) {
+           var types = e.dataTransfer.types;
+           if (!types || (types.contains && types.containes('Files')) ||
+               (types.indexOf && types.indexOf("Files") != -1)) {
+               dropTarget.classList.add('active');
+               return false;
+           }
+       };
+
+       // 사용자가 드래그 객체를 드롭 영역 밖으로 이동시키면 돋보이지 않게 한다.
+       dropTarget.ondragleave = function () {
+           dropTarget.classList.remove('active');
+       };
+
+       // 이 핸들러는 브라우저에게 드래그 중임을 알리는 역할을 한다.
+       dropTarget.ondragover = function (e) {
+           return false;
+       };
+
+       dropTarget.ondrop = function (e) {
+           var files = e.dataTransfer.files; // 드롭된 파일목록
+           for (let i = 0 ; i < files.length ; i++) {
+               const type = files[i].type;
+               type.sub
+               if (type.substring(0,6) !== 'image/') {
+                   console.log(type);
+                   continue; // 이미지가 아닌것은 무시한다.
+               }
+               const img = document.createElement('img');
+               img.src = getBlobURL(files[i]); // Blob URL을 <img>요소에 사용한다.
+               img.onload = function () {
+                   this.width = 100;
+                   document.body.appendChild(this); // 문서에 삽입한다.
+                   revokeBlobURL(this.src); // 메모리 누수 방지한다.
+               }
+           }
+
+           dropTarget.classList.remove('active');
+           return false;
+       };
+
+    });
+</script>
+</body>
+</html>

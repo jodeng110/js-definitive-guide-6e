@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>파일 시스템 동기 API</title>
+</head>
+<body>
+<script>
+
+    const worker = new Worker('fileSystemSyncWorker.js'); // 워커 생성
+    let command1 = { function: 'appendToFile', args: ['test1.txt', '안녕하세요. 나는 어디에 쓰여졌을까용?']};
+    let command2 = { function: 'readTextFile', args: ['test1.txt']};
+    let command3 = { function: 'deleteFile', args: ['test1.txt']};
+    let command4 = { function: 'makeDirectory', args: ['ex22-14-1', '안녕하세요. 나는 어디에 쓰여졌을까용?']};
+    let command5 = { function: 'appendToFile', args: ['ex22-14-1/001-1.txt', '새로 만들었어! test 디렉토리 안에다 만들꺼야!']};
+    let command6 = { function: 'appendToFile', args: ['ex22-14-1/002-1.txt', 'test 디렉토리 안 002파일이야!']};
+    let command7 = { function: 'listFiles', args: ['ex22-14-1']};
+    //let command8 = { function: 'readTextFile', args: ['001-1.txt']}; // 파일이 없어 오류나!
+    //let command9 = { function: 'readTextFile', args: ['002-1.txt']}; // 파일이 없어 오류나!
+    let command10 = { function: 'readTextFile', args: ['ex22-14-1/001-1.txt']};
+    let command11 = { function: 'readTextFile', args: ['ex22-14-1/002-1.txt']};
+
+    worker.postMessage(command1);
+    worker.postMessage(command2);
+    worker.postMessage(command3);
+    worker.postMessage(command4);
+    worker.postMessage(command5);
+    worker.postMessage(command6);
+    worker.postMessage(command7);
+    //worker.postMessage(command8);
+    //worker.postMessage(command9);
+    worker.postMessage(command10);
+    worker.postMessage(command11);
+
+    worker.onmessage = function (e) {
+        console.log(e.data); // Worker
+    };
+</script>
+</body>
+</html>

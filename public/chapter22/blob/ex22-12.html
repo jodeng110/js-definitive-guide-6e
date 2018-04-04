@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>readAsArrayBuffer()를 사용하여 파일의 첫 4바이트를 빅 엔디언 정수로 읽어 들이는 코드</title>
+</head>
+<body>
+<input type="file" onchange="typeFile(this.files[0])">
+
+<script>
+    function typeFile (file) {
+        var slice = file.slice(0 , 4); // 파일의 시작부분만을 잘라낸다.
+        var reader = new FileReader();
+        reader.readAsArrayBuffer(slice); // 파일의 조각을 읽어들인다.
+        reader.onload = function () {
+            var buffer = reader.result; // 결과 ArrayBuffer
+            var view = new DataView(buffer); // 결고 ㅏ바이트의 접근 권한을 획득
+            var magic = view.getUint32(0, false); // 빅 엔디언으로 4바이트를 읽어들인다.
+            console.log(magic, magic.toString(16))
+            switch (magic) {
+                case 0xFFD8FFE0: file.verified_type = "image/jpg"; break;
+                case 0x89504E47: file.verified_type = "image/png"; break;
+                case 0x47494638: file.verified_type = "image/gif"; break;
+                case 0x25504446: file.verified_type = "application/pdf"; break;
+                case 0x504B0304: file.verified_type = "application/zip"; break;
+                case 0xEFBBBF53: file.verified_type = "text/plain"; break;
+                case 0x223C6469: file.verified_type = "text/html"; break;
+            }
+            console.log(file.name, file.verified_type);
+        };
+    }
+</script>
+</body>
+</html>

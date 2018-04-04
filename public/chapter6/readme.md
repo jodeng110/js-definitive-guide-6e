@@ -277,3 +277,16 @@ o.x !== undefined // true;
 o.y !== undefined // false;
 o.toString !== undefined
 ```
+
+#### 프로퍼티 열거하기
+- 객체가 가진 모든 프로퍼티를 순회하고 싶을 때! for/in 루프 사용
+- for/in루프에서는 지정한 객체가 가진 고유 프로퍼티 또는 상속된 프로퍼티들 중 열거 가능한 프로퍼티들에 한해 각 프로퍼티마다 for/in 루프의 몸체가 실행.
+- 상속받은 내장 메서드는 열거할 수 없지만, 사용자가 임의로 추가한 프로퍼티들은 객체 내에서 열거 할 수 있다.
+```
+var o = {x: 1, y: 2, z: 3};
+o.propertyIsEnumerable("toString");
+for(p in o){
+    console.log(p);
+}
+
+```

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>비동기 파일시스템 API 사용하기</title>
+</head>
+<body>
+<script>
+    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+
+    function logErr (e) { console.error(e); }
+
+    var filesystem;
+
+    window.webkitStorageInfo.requestQuota(PERSISTENT, 1024*1024*10, function (grantedBytes) {
+        requestFileSystem(PERSISTENT, // window.PERSISTENT or window.TEMPORARY
+            grantedBytes, // 10MB 공간할당요청!
+            function (fs) {  // 완료되면 이함수호출
+                filesystem = fs; // 전역변수에 파일시스템을 저장
+                console.log('FileSystem에 10MB 공간할당 요청 완료!',filesystem);
+                appendToFile('test.txt', '안녕하세요. 나는 어디에 쓰여졌을까용?', function(e){
+                    console.log('이거뭐냐', e);
+                });
+
+                readTextFile('test.txt', function (data) {
+                    console.log('가져온 결과: ', data);
+                });
+
+                deleteFile('test.txt', function (e) {
+                    console.log('test.txt 파일이 삭제되었어용.');
+                });
+
+                makeDirectory('test', function (e) {
+                    console.log('test 디렉토리가 만들어졌을까? 궁금하면 확인해봐');
+                });
+
+                appendToFile('test/001.txt', '새로 만들었어! test 디렉토리 안에다 만들꺼야!', function (e) {
+                    console.log('test/001.txt가 만들어졌어!');
+                });
+
+                appendToFile('test/002.txt', 'test 디렉토리 안 002파일이야!', function (e) {
+                    console.log('test/002.txt가 만들어졌어!');
+                });
+
+                listFiles('test', function (data) {
+                    console.log('아이참 잼나라! 파일리스트를 가져와보자!', data);
+                })
+
+
+            }, logErr);
+    }, function (e) { console.log('Error', e); })
+
+    // 지정된 파일의 내용을 텍스트 형식으로 읽은 다음 콜백으로 전달
+    function readTextFile(path, callback) {
+        // getFile() 함수를 호출하여 지정된 파일명의 FileEntry객체를 찾는다.
+        console.log(path, callback);
+        filesystem.root.getFile(path, {}, function (entry) {
+            console.log(entry);
+            entry.file(function (file) {
+                var reader = new FileReader();
+                reader.readAsText(file);
+                reader.onload = function () {
+                    callback(reader.result);
+                };
+                reader.onerror = logErr;
+            }, logErr);
+        }, logErr);
+    }
+
+    function appendToFile(path, contents, callback) {
+        filesystem.root.getFile(
+            path,
+            {create: true},
+            function(entry) {
+                entry.createWriter(
+                    function(writer){
+                        /*
+                        // API에서 BlobBuilder를 지원하지 않습니다.
+                        var bb = new BlobBuilder();
+                        bb.append(contents);
+                        var blob = bb.getBlob();
+
+                        writer.write(blob);
+                        writer.onerror = logerr;
+                        if (callback) writer.onwrite = callback;
+                        */
+
+                        writer.seek(writer.length);
+
+                        writer.onwriteend = function (e) {console.log(e)};
+                        writer.onerror = logErr;
+
+                        var blob = new Blob([contents], {type: 'text/plain'});
+                        writer.write(blob);
+
+                        if (callback) writer.onwrite = callback;
+
+                    }, logErr);
+                }, function (e) {
+                console.error(e)
+            });
+    }
+
+    function deleteFile(name, callback) {
+        filesystem.root.getFile(name, {}, function (entry) { entry.remove(callback, logErr) }, logErr);
+    }
+
+    function makeDirectory(name, callback) {
+        filesystem.root.getDirectory(name, {create: true, exclusive: true}, callback, logErr);
+        // create: true // 존재하지 않는다면 생성한다. exclusive: true // 이미 존재한다면 에러 발생!
+    }
+
+    function listFiles(path, callback) {
+        if (!path) getFiles(filesystem.root);
+        else filesystem.root.getDirectory(path, {}, getFiles, logErr);
+
+        function getFiles(dir) {
+            var reader = dir.createReader();
+            var list = [];
+            reader.readEntries(handleEntries, logErr);
+
+            function handleEntries (entries) {
+                if (entries.length == 0) callback(list);
+                else {
+                    for(var i = 0 ; i < entries.length ; i++) {
+                        var name = entries[i].name;
+                        if (entries[i].isDirectory) name += "/"; // isDirectory 디렉토리인지 아닌지 확인
+                        list.push(name);
+                    }
+                    reader.readEntries(handleEntries, logErr);
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>
